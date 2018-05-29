@@ -172,6 +172,7 @@ bool SceneModel::insertRows(int row, int count, const QModelIndex &parent)
     beginInsertRows(parent, row, row + count - 1);
     // FIXME: Implement me!
     endInsertRows();
+    return true;
 }
 
 bool SceneModel::insertColumns(int column, int count, const QModelIndex &parent)
@@ -179,6 +180,7 @@ bool SceneModel::insertColumns(int column, int count, const QModelIndex &parent)
     beginInsertColumns(parent, column, column + count - 1);
     // FIXME: Implement me!
     endInsertColumns();
+    return true;
 }
 
 bool SceneModel::removeRows(int row, int count, const QModelIndex &parent)
@@ -186,6 +188,7 @@ bool SceneModel::removeRows(int row, int count, const QModelIndex &parent)
     beginRemoveRows(parent, row, row + count - 1);
     // FIXME: Implement me!
     endRemoveRows();
+    return true;
 }
 
 bool SceneModel::removeColumns(int column, int count, const QModelIndex &parent)
@@ -193,6 +196,7 @@ bool SceneModel::removeColumns(int column, int count, const QModelIndex &parent)
     beginRemoveColumns(parent, column, column + count - 1);
     // FIXME: Implement me!
     endRemoveColumns();
+    return true;
 }
 
 //scene stuff
