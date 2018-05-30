@@ -4,14 +4,15 @@
 #
 #-------------------------------------------------
 
-VSEL_VER = 0.0
-
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = VSEL
 TEMPLATE = app
+
+#Icon for macos
+ICON = vsel.icns
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings

@@ -13,14 +13,11 @@ SceneForm::SceneForm(QWidget *parent) :
     AbstractForm(parent),
     ui(new Ui::SceneForm) {
     ui->setupUi(this);
-    confd = new ConfirmDialog(NULL, "");
 
     //wiring pushbuttons
     connect(ui->doneButton, SIGNAL(clicked(bool)), this, SLOT(doneSlot()));
     connect(ui->addVideoButton, SIGNAL(clicked(bool)), this, SLOT(addVideoSlot()));
     connect(ui->deleteVideoButton, SIGNAL(clicked(bool)), this, SLOT(removeVideoSlot()));
-    //wiring confirm dialog buttons
-    connect(confd, SIGNAL(ok()), this, SLOT(deleteVideoOkSlot()));
 }
 
 SceneForm::~SceneForm() {
@@ -40,6 +37,7 @@ void SceneForm::setSceneName(QString sName) {
  */
 void SceneForm::update() {
 
+
     qDebug("Sceneform executing update");
 
     if(model != nullptr) {
@@ -54,6 +52,7 @@ void SceneForm::update() {
         qDebug("creating and setting model");
         model = new SceneModel(nullptr, tmpVal.value<Scene*>());
         ui->videoTable->setModel(model);
+        ui->sceneNameLabel->setText(tmpVal.value<Scene*>()->name);
         //wiring selection events
         connect(ui->videoTable->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(updateSelection(QItemSelection,QItemSelection)) );
     } else {
@@ -65,27 +64,24 @@ void SceneForm::update() {
     //set custom editors for midi note and blur type
     ui->videoTable->setItemDelegateForColumn(1, new NoteEditDelegate(this, 0, 127));
     ui->videoTable->setItemDelegateForColumn(3, new BlurtypeDelegate(this));
+    //first row autmatically selected
+    ui->videoTable->setFocus();
+    ui->videoTable->selectRow(0);
 }
 
 void SceneForm::addNewVideo() {
     QString filePath = QFileDialog::getOpenFileName(this,
         tr("Choose Video"), QDir::homePath(), tr("Video Files (*.mp4 *.h264)"));
     if(filePath != "") {
-        qDebug() << "Filename:" << filePath;
-        QFileInfo fi(filePath);
-        QString fileName = fi.fileName();
-        QString destPath = model->getScenePath() % QDir::separator() % fileName;
-        //copia il file nella directory della scena
-        if(!QFile::copy(filePath, destPath)) {
-            //if scene doesn't contain video file alrady then we have a problem
-            QFileInfo dfi(destPath);
-            if(!dfi.exists()) {
-                showWarningDialog("can't copy video file to scene directory");
-            }
-        } else {
-            // new video added, reload view
+        if(!model->hasVideo(filePath)) {
             try {
-                model->reloadScene();
+                model->addNewVideo(filePath);
+            } catch(VSException &vse) {
+                showWarningDialog(vse.getMessage());
+            }
+        } else if(model->hasVideo(filePath) && showQuestionDialog("Video already in scene, overwrite?")) {
+            try {
+                model->replaceVideo(filePath);
             } catch(VSException &vse) {
                 showWarningDialog(vse.getMessage());
             }
@@ -96,7 +92,6 @@ void SceneForm::addNewVideo() {
 void SceneForm::removeVideo() {
     try {
         model->removeSelectedVideo();
-        model->persistVideoData();
     } catch(VSException &vse) {
         showWarningDialog(vse.getMessage());
     }
@@ -113,8 +108,9 @@ void SceneForm::addVideoSlot() {
 }
 
 void SceneForm::removeVideoSlot() {
-    confd->setMessage("Delete selected video?");
-    confd->show();
+    if(showQuestionDialog("Delete selected video?")) {
+        removeVideo();
+    }
 }
 
 void SceneForm::updateSelection(const QItemSelection &selected, const QItemSelection &deselected) {

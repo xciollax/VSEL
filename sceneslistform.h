@@ -42,7 +42,7 @@ signals:
 
 private:
     Ui::FormFileSystemList *ui;
-    QFileSystemModel *mod;
+    QFileSystemModel *mod = NULL;
     CreateSceneDialog * csd;
     ConfirmDialog * confd;
     Scene * loadedScene;

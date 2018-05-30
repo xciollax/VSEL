@@ -17,3 +17,7 @@ CreateSceneDialog::~CreateSceneDialog() {
 void CreateSceneDialog::okSlot() {
     emit(ok(ui->lineEdit->text()));
 }
+
+void CreateSceneDialog::reset() {
+    ui->lineEdit->clear();
+}

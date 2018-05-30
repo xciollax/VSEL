@@ -167,37 +167,31 @@ Qt::ItemFlags SceneModel::flags(const QModelIndex &index) const
     }
 }
 
-bool SceneModel::insertRows(int row, int count, const QModelIndex &parent)
-{
+bool SceneModel::insertRows(int row, int count, const QModelIndex &parent) {
     beginInsertRows(parent, row, row + count - 1);
-    // FIXME: Implement me!
+
     endInsertRows();
     return true;
 }
 
-bool SceneModel::insertColumns(int column, int count, const QModelIndex &parent)
-{
-    beginInsertColumns(parent, column, column + count - 1);
-    // FIXME: Implement me!
-    endInsertColumns();
-    return true;
-}
 
-bool SceneModel::removeRows(int row, int count, const QModelIndex &parent)
-{
+bool SceneModel::removeRows(int row, int count, const QModelIndex &parent) {
     beginRemoveRows(parent, row, row + count - 1);
-    // FIXME: Implement me!
+
     endRemoveRows();
     return true;
 }
 
-bool SceneModel::removeColumns(int column, int count, const QModelIndex &parent)
-{
-    beginRemoveColumns(parent, column, column + count - 1);
-    // FIXME: Implement me!
-    endRemoveColumns();
-    return true;
+//Not supported
+bool SceneModel::insertColumns(int column, int count, const QModelIndex &parent) {
+    return false;
 }
+
+bool SceneModel::removeColumns(int column, int count, const QModelIndex &parent) {
+    return false;
+}
+//Not supported
+
 
 //scene stuff
 QString SceneModel::getScenePath() {
@@ -235,17 +229,49 @@ void SceneModel::loadScene(QString scenePath) {
 }
 
 void SceneModel::reloadScene() {
+    beginResetModel();
     theScene->reload();
+    endResetModel();
 }
 
 void SceneModel::selectVideo(int index) {
-    if(index > 0 && index < theScene->videos.size()) {
+    qDebug() << "selected video " << index;
+    if(index >= 0 && index < theScene->videos.size()) {
         selectedVideoIndex = index;
     }
 }
 
 void SceneModel::removeSelectedVideo() {
-    if(selectedVideoIndex != -1) {
-        theScene->removeVideo(selectedVideoIndex);
+    qDebug() << "remove selected...";
+    removeVideo(selectedVideoIndex);
+    qDebug() << "done";
+}
+
+void SceneModel::removeVideo(int indexToRemove) {
+    qDebug() << "About to remove video " << indexToRemove;
+    if(indexToRemove != -1) {
+        const QModelIndex qmi;
+        beginRemoveRows(qmi, indexToRemove, indexToRemove);
+        theScene->removeVideo(indexToRemove);
+        endRemoveRows();
     }
+}
+
+
+void SceneModel::addNewVideo(QString videoPath) {
+    const QModelIndex qmi;
+    beginInsertRows(qmi, theScene->videos.size(), theScene->videos.size());
+    theScene->addVideoFile(videoPath);
+    endInsertRows();
+}
+
+void SceneModel::replaceVideo(QString videoPath) {
+    QFileInfo fi(videoPath);
+    removeVideo(theScene->indexOf(fi.fileName()));
+    addNewVideo(videoPath);
+}
+
+bool SceneModel::hasVideo(QString path) {
+    QFileInfo fi(path);
+    return theScene->hasVideo(fi.fileName());
 }

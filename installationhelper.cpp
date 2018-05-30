@@ -4,6 +4,7 @@
 #include <QStringList>
 #include <QFileDialog>
 #include "vsexception.h"
+#include <qdebug.h>
 
 InstallationHelper::InstallationHelper() {}
 
@@ -63,7 +64,7 @@ QString InstallationHelper::createFileName(const Video v) {
     QChar sep = '-';
     QChar dot = '.';
 
-    return midinote.setNum(v.midiNote) % sep % blurType.setNum(v.blurType) % sep % loopatEnd.setNum(v.loopAtEnd) % dot % v.name.right(v.name.lastIndexOf(dot));
+    return midinote.setNum(v.midiNote) % sep % blurType.setNum(v.blurType) % sep % loopatEnd.setNum(v.loopAtEnd) % dot % v.name.split(dot).last();
 }
 
 /**
@@ -84,12 +85,13 @@ void InstallationHelper::removeObsoleteVideos(const Scene *s, QDir sceneDir) {
     QStringList vdz;
 
     for(Video v : s->videos) {
-        vdz << v.name;
+        vdz << createFileName(v);
     }
 
-    QStringList scVdz = sceneDir.entryList(QDir::Dirs);
+    QStringList scVdz = sceneDir.entryList(QDir::Files);
 
     for(QString n : scVdz) {
+        qDebug() << "checking video " << n;
         if(!vdz.contains(n)) {
             //kill obsolete video file
             sceneDir.remove(n);
@@ -99,6 +101,7 @@ void InstallationHelper::removeObsoleteVideos(const Scene *s, QDir sceneDir) {
 
 QString InstallationHelper::createInstallation(QString instPath) {
     QString ret("");
+
     if(instPath != "") {
         //verify chosen path
         if(checkInstLocation(instPath)) {
@@ -109,10 +112,10 @@ QString InstallationHelper::createInstallation(QString instPath) {
                 throw VSException("can't create scenes directory, aborting", 4);
             }
         } else {
-            throw VSException("void installation path, can't create", 5);
+            throw VSException("illegal installation dir, can't create", 5);
         }
     } else {
-        throw VSException("illegal installation dir, can't create", 6);
+        throw VSException("void installation path, can't create", 6);
     }
 
     return ret;
@@ -120,17 +123,18 @@ QString InstallationHelper::createInstallation(QString instPath) {
 
 bool InstallationHelper::checkInstLocation(QString locPath) {
     bool ret = true;
-    QFileInfo toCheck(locPath);
-
-    ret = (toCheck.exists() && toCheck.isDir() && toCheck.fileName() != "video_slave" && !toCheck.dir().exists("video_slave"));
+    qDebug() << "Checking installation location " << locPath;
+    QDir toCheck(locPath);
+    qDebug() << toCheck.exists() << (toCheck.dirName() != "video_slave") << !toCheck.exists("video_slave");
+    ret = (toCheck.exists() && toCheck.dirName() != "video_slave" && !toCheck.exists("video_slave"));
 
     return ret;
 }
 
 bool InstallationHelper::checkInstallation(QString instPath) {
     bool ret = true;
-    QFileInfo toCheck(instPath);
-    ret = (toCheck.exists() && toCheck.isDir() && toCheck.fileName() == "video_slave" && toCheck.dir().exists("video_slave/scenes"));
+    QDir toCheck(instPath);
+    ret = (toCheck.exists() && toCheck.dirName() == "video_slave" && toCheck.exists("scenes"));
     return ret;
 }
 

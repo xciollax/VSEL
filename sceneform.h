@@ -34,7 +34,6 @@ private:
     SceneModel * model = nullptr;
     void addNewVideo();
     void removeVideo();
-    ConfirmDialog * confd;
 };
 
 #endif // SCENEFORM_H

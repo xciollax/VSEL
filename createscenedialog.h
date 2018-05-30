@@ -14,6 +14,7 @@ class CreateSceneDialog : public QDialog
 public:
     explicit CreateSceneDialog(QWidget *parent = 0);
     ~CreateSceneDialog();
+    void reset();
 private slots:
     void okSlot();
 signals:

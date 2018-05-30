@@ -37,4 +37,4 @@ bool Video::fromLine(QString line) {
     return ret;
 }
 
-QString Video::blurTypes[] = {"Rewind", "Pause", "Virtual play"};
+QString Video::blurTypes[] = {"Pause", "Rewind", "Virtual play"};

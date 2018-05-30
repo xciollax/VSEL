@@ -51,14 +51,20 @@ void ScenesListForm::setupModel() {
     baseDir = new QDir(getBasePath());
 
     ui->listView->setModel(mod);
-    ui->listView->setRootIndex(mod->index(getFromModel("basePath").toString()));
+    ui->listView->setRootIndex(mod->index(getBasePath()));
 
     //wiring selection events
     connect(ui->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(updateSelectionSlot(QItemSelection,QItemSelection)) );
 }
 
 void ScenesListForm::update() {
-    setupModel();
+    if(mod == NULL) {
+        setupModel();
+    } else if(mod->rootPath() != getBasePath()) {
+        ui->listView->setRootIndex(mod->index(getBasePath()));
+    }
+
+    ui->listView->setFocus();
 }
 
 Scene * ScenesListForm::loadScene(const QString sceneName) {
@@ -113,7 +119,7 @@ void ScenesListForm::deleteScene(QString sceneName) {
  * @return
  */
 bool ScenesListForm::validateSceneName(QString sceneName) {
-    QRegularExpression re("^[A-Za-z0-9_\+\-\#]{4,4}$");
+    QRegularExpression re("^[A-Za-z0-9_\\+\\-\\#]{4}$");
     return re.match(sceneName).hasMatch();
 }
 
@@ -190,6 +196,7 @@ void ScenesListForm::vselExitSlot() {
     }
 }
 void ScenesListForm::plusSceneSlot() {
+    csd->reset();
     csd->show();
 }
 

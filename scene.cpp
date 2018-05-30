@@ -4,6 +4,7 @@
 #include <iostream>
 #include <qdebug.h>
 #include "vsexception.h"
+#include <QStringBuilder>
 
 const QString Scene::VID_DATA_FILE = "video_data.txt";
 Scene::Scene() {}
@@ -70,14 +71,45 @@ void Scene::addVideo(Video v) {
     this->videos.append(v);
 }
 
+void Scene::addVideoFile(QString videoPath) {
+    if(videoPath != "") {
+        qDebug() << "Filename:" << videoPath;
+        QFileInfo fi(videoPath);
+
+        if(!fi.exists()) {
+            throw VSException("non existent video file, can't add to scene", 666);
+        }
+
+        QString fileName = fi.fileName();
+        removeDuplicateVideo(fileName);
+
+        QString destPath = scenePath % QDir::separator() % fileName;
+        //copia il file nella directory della scena
+        if(!QFile::copy(videoPath, destPath)) {
+            //if scene doesn't contain video file already then we have a problem
+            QFileInfo dfi(destPath);
+            if(!dfi.exists()) {
+                //throw exception
+                throw VSException("can't copy video file to scene directory", 666);
+            }
+        } else {
+            reload();
+        }
+    }
+}
+
+
+
 void Scene::removeVideo(int i) {
-    if(i > 0 && i < videos.size()) {
+    if(i >= 0 && i < videos.size()) {
         //remove video file
         QDir sceneDir(scenePath);
         sceneDir.remove(videos[i].name);
 
         //remove video object
         this->videos.removeAt(i);
+        //sync video data
+        saveVideoData();
     }
 }
 
@@ -137,3 +169,36 @@ void Scene::verify() {
         }
     }
 }
+
+bool Scene::hasVideo(QString n) {
+    bool ret = false;
+    for(Video v: videos) {
+        if(v.name == n) {
+            ret = true;
+            break;
+        }
+    }
+
+    return ret;
+}
+
+void Scene::removeDuplicateVideo(QString name) {
+    int indx = indexOf(name);
+
+    if(indx != -1) {
+        removeVideo(indx);
+    }
+}
+int Scene::indexOf(QString name) {
+    int ret = -1;
+
+    for(int i = 0; i < videos.size(); i++) {
+        if(videos[i].name == name) {
+            ret = i;
+            break;
+        }
+    }
+
+    return ret;
+}
+

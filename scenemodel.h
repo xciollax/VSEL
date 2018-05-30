@@ -43,7 +43,11 @@ public:
     int selectedVideoIndex = -1;
     void selectVideo(int index);
     void removeSelectedVideo();
+    void removeVideo(int indexToRemove);
+    void addNewVideo(QString videoPath);
+    void replaceVideo(QString videoPath);
     void persistVideoData();
+    bool hasVideo(QString path);
 private:
     //Modification of underlying scene
     void persistVideoData(Scene * s);
