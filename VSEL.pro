@@ -23,7 +23,7 @@ RC_ICONS = vsel.ico
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 #VSEL VERSION
-DEFINES += VSEL_V='\\"0.2\\"'
+DEFINES += VSEL_V='\\"0.3\\"'
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
@@ -46,7 +46,8 @@ SOURCES += \
     sceneslistform.cpp \
     vsexception.cpp \
     mainwindow.cpp \
-    splashform.cpp
+    splashform.cpp \
+    zoomtypedelegate.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -63,7 +64,8 @@ HEADERS += \
     installationhelper.h \
     sceneslistform.h \
     vsexception.h \
-    splashform.h
+    splashform.h \
+    zoomtypedelegate.h
 
 FORMS += \
         mainwindow.ui \
