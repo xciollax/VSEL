@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include "noteeditdelegate.h"
 #include "blurtypedelegate.h"
+#include "zoomtypedelegate.h"
 #include "qdebug.h"
 #include <QStringBuilder>
 
@@ -61,9 +62,10 @@ void SceneForm::update() {
         emit transition("formfs");
     }
 
-    //set custom editors for midi note and blur type
+    //set custom editors for midi note, blur and zoom types
     ui->videoTable->setItemDelegateForColumn(1, new NoteEditDelegate(this, 0, 127));
     ui->videoTable->setItemDelegateForColumn(3, new BlurtypeDelegate(this));
+    ui->videoTable->setItemDelegateForColumn(4, new ZoomtypeDelegate(this));
     //first row autmatically selected
     ui->videoTable->setFocus();
     ui->videoTable->selectRow(0);

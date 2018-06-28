@@ -59,12 +59,12 @@ void InstallationHelper::uninstallScene(const Scene *s, const QString path) {
 
 //note - blur type - loop at end . ext
 QString InstallationHelper::createFileName(const Video v) {
-    QString midinote, blurType, loopatEnd;
+    QString midinote, blurType, loopatEnd, zoomType;
 
     QChar sep = '-';
     QChar dot = '.';
 
-    return midinote.setNum(v.midiNote) % sep % blurType.setNum(v.blurType) % sep % loopatEnd.setNum(v.loopAtEnd) % dot % v.name.split(dot).last();
+    return midinote.setNum(v.midiNote) % sep % blurType.setNum(v.blurType) % sep % loopatEnd.setNum(v.loopAtEnd) % sep % zoomType.setNum(v.zoomType) % dot % v.name.split(dot).last();
 }
 
 /**

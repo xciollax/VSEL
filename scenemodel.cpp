@@ -41,6 +41,8 @@ QVariant SceneModel::headerData(int section, Qt::Orientation orientation, int ro
         case 3:
             val = "Blur type";
             break;
+        case 4:
+            val = "Zoom type";
         }
 
     } else if(orientation == Qt::Vertical) {
@@ -69,7 +71,7 @@ int SceneModel::rowCount(const QModelIndex &parent) const
 
 int SceneModel::columnCount(const QModelIndex &parent) const
 {
-    return 4;
+    return 5;
 }
 
 /**
@@ -109,6 +111,14 @@ QVariant SceneModel::data(const QModelIndex &index, int role) const
             }
 
             break;
+        case 4:
+            if(role == Qt::EditRole) {
+                ret = theScene->videos[index.row()].zoomType;
+            } else if(role == Qt::DisplayRole) {
+                ret = Video::zoomTypes[theScene->videos[index.row()].zoomType];
+            }
+
+            break;
         }
 
         if(role == Qt::ForegroundRole && !theScene->videos[index.row()].ok) {
@@ -140,6 +150,9 @@ bool SceneModel::setData(const QModelIndex &index, const QVariant &value, int ro
             break;
         case 3:
             theScene->videos[index.row()].blurType = value.toInt();
+            break;
+        case 4:
+            theScene->videos[index.row()].zoomType = value.toInt();
             break;
         }
 
