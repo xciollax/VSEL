@@ -6,6 +6,7 @@
 #include "confirmdialog.h"
 #include <QFileSystemModel>
 #include <QItemSelection>
+#include <QDebug>
 #include "scene.h"
 
 namespace Ui {
@@ -32,6 +33,7 @@ public slots:
     void uninstallSceneSlot();
     void createInstallationSlot();
     void selectInstallationSlot();
+    void synchInstallationSlot();
     void installationChangedSlot(QString instPath);
     void currentSceneChangedSlot(QString scene);
     void changeBasePathSlot();
@@ -52,7 +54,9 @@ private:
     void uninstallScene();
     void createInstallation();
     void selectInstallation();
+    void synchInstallation();
     void updateButtons();
+    QStringList getSceneNames();
     Scene * loadScene(const QString sceneName);
     QDir * baseDir;
     bool validateSceneName(QString sceneName);

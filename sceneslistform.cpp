@@ -27,9 +27,11 @@ ScenesListForm::ScenesListForm(QWidget *parent) :
     connect(ui->uninstallButton, SIGNAL(clicked(bool)), this, SLOT(uninstallSceneSlot()));
     connect(ui->createInstButton, SIGNAL(clicked(bool)), this, SLOT(createInstallationSlot()));
     connect(ui->selectInstButton, SIGNAL(clicked(bool)), this, SLOT(selectInstallationSlot()));
+    connect(ui->syncButton, SIGNAL(clicked(bool)), this, SLOT(synchInstallationSlot()));
+
     connect(ui->exitButton, SIGNAL(clicked(bool)), this, SLOT(vselExitSlot()));
     connect(ui->changeBaseButton, SIGNAL(clicked(bool)), this, SLOT(changeBasePathSlot()));
-
+    //TODO: wire syncbutton
     //wiring local events
     connect(this, SIGNAL(installationPathChanged(QString)), this, SLOT(installationChangedSlot(QString)));
     connect(this, SIGNAL(currentSceneChanged(QString)), this, SLOT(currentSceneChangedSlot(QString)));
@@ -58,10 +60,16 @@ void ScenesListForm::setupModel() {
 }
 
 void ScenesListForm::update() {
+    qDebug() << "SceneListForm Update!";
     if(mod == NULL) {
         setupModel();
     } else if(mod->rootPath() != getBasePath()) {
+        delete(baseDir);
+        baseDir = new QDir(getBasePath());
+        mod->setRootPath(getBasePath());
         ui->listView->setRootIndex(mod->index(getBasePath()));
+    } else {
+        qDebug() << "Nada!!!";
     }
 
     ui->listView->setFocus();
@@ -94,7 +102,9 @@ void ScenesListForm::updateButtons() {
 
 //biz func
 void ScenesListForm::createScene(QString sceneName) {
-    if(!validateSceneName(sceneName)) {
+    if(baseDir->exists(sceneName)) {
+        throw VSException("Scene exists, can'create.");
+    } else if(!validateSceneName(sceneName)) {
         throw VSException("Invalid Scene Name, only 4 letter words allowed :)", 13);
     } else {
         baseDir->mkdir(sceneName);
@@ -139,6 +149,30 @@ void ScenesListForm::createInstallation() {
     } else {}
 }
 
+void ScenesListForm::synchInstallation() {
+    //warn user about potential data loss
+    if(showQuestionDialog("Current installation contents will be deleted. Continue?")) {
+        try {
+            //delete al scenes in installation
+            InstallationHelper::cleanInstallation(getInstallationPath());
+            //install all scenes
+            QStringListIterator scenesIterator(getSceneNames());
+            Scene * tmp;
+            while(scenesIterator.hasNext()) {
+                tmp = new Scene(getBasePath() + QDir::separator() + scenesIterator.next());
+                qDebug("About to install %s from %s on %s", tmp->name.toLocal8Bit().constData(), getBasePath().toLocal8Bit().constData(), getInstallationPath().toLocal8Bit().constData());
+                InstallationHelper::installScene(tmp, getInstallationPath(), getBasePath());
+                delete tmp;
+            }
+            showMsgDialog("Synchronization complete.");
+        } catch (VSException &vse) {
+            showWarningDialog(vse.getMessage());
+        }
+    }
+    //install all scenes
+    //inform user
+}
+
 void ScenesListForm::selectInstallation() {
     QString instPath = QFileDialog::getExistingDirectory(this, tr("Choose Existing Installation"), QDir::homePath(), QFileDialog::ShowDirsOnly);
 
@@ -175,6 +209,8 @@ void ScenesListForm::uninstallScene() {
             } catch(VSException &vse) {
                 showWarningDialog(vse.getMessage());
             }
+
+            showMsgDialog("Scene uninstalled.");
         } else {
             showWarningDialog("Please create or select an installation");
         }
@@ -185,7 +221,17 @@ void ScenesListForm::vselExit() {
     QCoreApplication::quit();
 }
 
+QStringList ScenesListForm::getSceneNames() {
+    QDir base(getBasePath());
+    qDebug("Found %i scenes in %s", base.entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot).size(), getBasePath().toLocal8Bit().constData());
+    return base.entryList(QDir::Dirs | QDir::NoDot | QDir::NoDotDot);
+}
+
 //slots
+
+void ScenesListForm::synchInstallationSlot() {
+    synchInstallation();
+}
 
 void ScenesListForm::changeBasePathSlot() {
     emit transition("formbp");
@@ -235,6 +281,7 @@ void ScenesListForm::installSceneSlot() {
         } catch(VSException &vse) {
             showWarningDialog(vse.getMessage());
         }
+        showMsgDialog("Scene installed.");
     } else {
         showWarningDialog("Please create or select an installation");
     }

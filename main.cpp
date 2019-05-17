@@ -8,9 +8,11 @@
 
 int main(int argc, char *argv[])
 {
+    //TODO: fix organization data
     QCoreApplication::setOrganizationName("yodel");
     QCoreApplication::setOrganizationDomain("yodel.xxx");
-    QCoreApplication::setApplicationName("Videoslave librarian");
+
+    QCoreApplication::setApplicationName("Yeti librarian");
 
     //loads settings
     QSettings appSettings;
@@ -20,7 +22,6 @@ int main(int argc, char *argv[])
         scenesDir = appSettings.value("basePath").toString();
     }
 
-    //TODO:Gestione del livello di logging
     QApplication a(argc, argv);
 
     QPixmap pMap(":/images/vsel.png");

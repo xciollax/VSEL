@@ -265,8 +265,10 @@ void SceneModel::removeVideo(int indexToRemove) {
     if(indexToRemove != -1) {
         const QModelIndex qmi;
         beginRemoveRows(qmi, indexToRemove, indexToRemove);
+        qDebug() << "Begin emitted";
         theScene->removeVideo(indexToRemove);
         endRemoveRows();
+        qDebug() << "End emitted";
     }
 }
 

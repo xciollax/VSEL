@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "abstractform.h"
+#include <QDebug>
 
 namespace Ui {
 class BasePathForm;

@@ -6,6 +6,9 @@
 #include "vsexception.h"
 #include <qdebug.h>
 
+const QString InstallationHelper::instDirName = "video_slave";
+const QString InstallationHelper::scenesDirName = "scenes";
+
 InstallationHelper::InstallationHelper() {}
 
 void InstallationHelper::installScene(const Scene *s, const QString installationPath, const QString basePath) {
@@ -13,7 +16,7 @@ void InstallationHelper::installScene(const Scene *s, const QString installation
     QDir baseDir(basePath % QDir::separator() % s->name);
 
     if(checkInstDir(instDir)) {
-        QDir scenesDir(instDir.absolutePath() % QDir::separator() % "scenes");
+        QDir scenesDir(instDir.absolutePath() % QDir::separator() % scenesDirName);
         if(!scenesDir.exists(s->name)) {
             //create scene dir
             if(!scenesDir.mkdir(s->name)) {
@@ -49,7 +52,7 @@ void InstallationHelper::installScene(const Scene *s, const QString installation
 }
 
 void InstallationHelper::uninstallScene(const Scene *s, const QString path) {
-    QDir sceneDir(path % QDir::separator() % "scenes" % s->name);
+    QDir sceneDir(path % QDir::separator() % scenesDirName % QDir::separator() % s->name);
     if(sceneDir.exists()) {
         sceneDir.removeRecursively();
     } else {
@@ -73,7 +76,7 @@ QString InstallationHelper::createFileName(const Video v) {
  * @return true if installation dir passes check, false otherwise
  */
 bool InstallationHelper::checkInstDir(QDir instDir) {
-    return instDir.exists("scenes");
+    return instDir.exists(scenesDirName);
 }
 
 /**
@@ -106,8 +109,8 @@ QString InstallationHelper::createInstallation(QString instPath) {
         //verify chosen path
         if(checkInstLocation(instPath)) {
             QDir instDir(instPath);
-            if(instDir.mkpath("video_slave/scenes")) {
-                ret = instPath % QDir::separator() % "video_slave";
+            if(instDir.mkpath(instDirName % QDir::separator() % scenesDirName)) {
+                ret = instPath % QDir::separator() % instDirName;
             } else {
                 throw VSException("can't create scenes directory, aborting", 4);
             }
@@ -125,16 +128,17 @@ bool InstallationHelper::checkInstLocation(QString locPath) {
     bool ret = true;
     qDebug() << "Checking installation location " << locPath;
     QDir toCheck(locPath);
-    qDebug() << toCheck.exists() << (toCheck.dirName() != "video_slave") << !toCheck.exists("video_slave");
-    ret = (toCheck.exists() && toCheck.dirName() != "video_slave" && !toCheck.exists("video_slave"));
+    qDebug() << toCheck.exists() << (toCheck.dirName() != instDirName) << !toCheck.exists(instDirName);
+    ret = (toCheck.exists() && toCheck.dirName() != instDirName && !toCheck.exists(instDirName));
 
     return ret;
 }
 
 bool InstallationHelper::checkInstallation(QString instPath) {
+    qDebug() << "checking installation path: " << instPath;
     bool ret = true;
     QDir toCheck(instPath);
-    ret = (toCheck.exists() && toCheck.dirName() == "video_slave" && toCheck.exists("scenes"));
+    ret = (toCheck.exists() && toCheck.dirName() == instDirName && toCheck.exists(scenesDirName));
     return ret;
 }
 
@@ -155,3 +159,17 @@ QString InstallationHelper::selectInstallation(QString instPath) {
     return ret;
 }
 
+void InstallationHelper::cleanInstallation(QString instPath) {
+    QDir toClean(instPath % QDir::separator() % scenesDirName);
+    if(!toClean.removeRecursively()) {
+        throw VSException("can't remove scenes", 9);
+    }
+
+    if(!toClean.cdUp()) {
+        throw VSException("can't remove scenes", 10);
+    }
+
+    if(!toClean.mkdir(scenesDirName)) {
+        throw VSException("can't remove scenes", 11);
+    }
+}

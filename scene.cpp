@@ -13,6 +13,7 @@ Scene::Scene(QString path) {
     qDebug("Creating scene from path %s", path.toLocal8Bit().constData());
     this->scenePath = path;
     loadVideos();
+    createId();
 }
 
 void Scene::loadVideos() {
@@ -47,12 +48,23 @@ void Scene::loadVideos() {
             QTextStream in(&file);
             QString line;
 
+            bool found = false;
+
             while (!in.atEnd()) {
+                found = false;
                 line = in.readLine();
                 for(int i = 0; i < this->videos.size(); i++) {
                     if(this->videos[i].fromLine(line)) {
+                        found = true;
                         break;
                     }
+                }
+
+                if(!found && line != "") {
+                    //we've found the id
+                    qDebug() << "old id is " << id.toString();
+                    id = QUuid::fromString(line);
+                    qDebug() << "new id is " << id.toString();
                 }
             }
 
@@ -69,6 +81,7 @@ void Scene::loadVideos() {
 
 void Scene::addVideo(Video v) {
     this->videos.append(v);
+    createId();
 }
 
 void Scene::addVideoFile(QString videoPath) {
@@ -80,6 +93,7 @@ void Scene::addVideoFile(QString videoPath) {
             throw VSException("non existent video file, can't add to scene", 666);
         }
 
+        //add video file to scene
         QString fileName = fi.fileName();
         removeDuplicateVideo(fileName);
 
@@ -95,6 +109,8 @@ void Scene::addVideoFile(QString videoPath) {
         } else {
             reload();
         }
+
+        createId();
     }
 }
 
@@ -110,6 +126,9 @@ void Scene::removeVideo(int i) {
         this->videos.removeAt(i);
         //sync video data
         saveVideoData();
+        //verify: maybe note duplicate removed?
+        verify();
+        createId();
     }
 }
 
@@ -129,6 +148,12 @@ void Scene::saveVideoData() {
             for(int i = 0 ; i < videos.size(); i++) {
                 file.write(videos[i].toLine().append('\n').toLocal8Bit().constData());
             }
+
+            const char nl = '\n';
+            //write a blank line
+            file.write(&nl);
+            //wite id
+            file.write(id.toByteArray());
 
             file.close();
         } else {
@@ -200,5 +225,13 @@ int Scene::indexOf(QString name) {
     }
 
     return ret;
+}
+
+void Scene::createId() {
+    id = QUuid::createUuid();
+}
+
+bool Scene::operator==(const Scene &other) const {
+    return (name == other.name && id == other.id);
 }
 

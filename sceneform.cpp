@@ -67,6 +67,7 @@ void SceneForm::update() {
     ui->videoTable->setItemDelegateForColumn(3, new BlurtypeDelegate(this));
     ui->videoTable->setItemDelegateForColumn(4, new ZoomtypeDelegate(this));
     //first row autmatically selected
+    ui->videoTable->resizeColumnsToContents();
     ui->videoTable->setFocus();
     ui->videoTable->selectRow(0);
 }
@@ -76,6 +77,9 @@ void SceneForm::addNewVideo() {
         tr("Choose Video"), QDir::homePath(), tr("Video Files (*.mp4 *.h264)"));
     if(filePath != "") {
         if(!model->hasVideo(filePath)) {
+            if(!checkVideo(filePath)) {
+                showWarningDialog("Video format could be incompatible with the Yeti!");
+            }
             try {
                 model->addNewVideo(filePath);
             } catch(VSException &vse) {
@@ -89,6 +93,23 @@ void SceneForm::addNewVideo() {
             }
         }
     }
+
+    ui->videoTable->resizeColumnsToContents();
+    ui->videoTable->selectRow(0);
+}
+
+/**
+ * @brief SceneForm::checkVideo
+ * @param path
+ * @return true if mime type is ok, false otherwise
+ */
+bool SceneForm::checkVideo(QString path) {
+    //check video format
+    QMimeDatabase qmdb;
+    QString mimeType = qmdb.mimeTypeForUrl(QUrl::fromLocalFile(path)).name();
+    //qDebug() << "aliases are:" << qmdb.mimeTypeForUrl(QUrl::fromLocalFile(videoPath)).aliases();
+
+    return (mimeType == "video/mp4");
 }
 
 void SceneForm::removeVideo() {
@@ -97,6 +118,14 @@ void SceneForm::removeVideo() {
     } catch(VSException &vse) {
         showWarningDialog(vse.getMessage());
     }
+
+//    //orrido fix ma non mi viene in mente altro!
+//    if(ui->videoTable->selectionModel()->currentIndex().row() != model->selectedVideoIndex) {
+//        model->selectVideo(ui->videoTable->selectionModel()->currentIndex().row());
+//    }
+
+    ui->videoTable->selectRow(0);
+
 }
 
 //slots
@@ -116,6 +145,7 @@ void SceneForm::removeVideoSlot() {
 }
 
 void SceneForm::updateSelection(const QItemSelection &selected, const QItemSelection &deselected) {
+//void SceneForm::updateSelection(const QModelIndex &selected, const QModelIndex &deselected) {
     if(!selected.indexes().isEmpty()) {
         qDebug() << "Updating selection, row is " << selected.indexes().constFirst().row();
         model->selectVideo(selected.indexes().constFirst().row());

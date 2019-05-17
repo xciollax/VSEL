@@ -7,6 +7,9 @@
 
 class InstallationHelper {
 public:
+    const static QString instDirName;
+    const static QString scenesDirName;
+
     InstallationHelper();
     static void installScene(const Scene * s, const QString path, const QString basePath);
     static void uninstallScene(const Scene * s, const QString path);
@@ -14,6 +17,7 @@ public:
     static bool checkInstDir(QDir instDir);
     static QString createInstallation(QString instPath);
     static QString selectInstallation(QString instPath);
+    static void cleanInstallation(QString instPath);
 private:
     static void removeObsoleteVideos(const Scene * s, QDir sceneDir);
     static bool checkInstLocation(QString locPath);

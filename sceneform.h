@@ -6,6 +6,9 @@
 #include <QItemSelection>
 #include "scenemodel.h"
 #include "confirmdialog.h"
+#include <QMediaResource>
+#include <QUrl>
+#include <QMimeDatabase>
 
 namespace Ui {
 class SceneForm;
@@ -34,6 +37,7 @@ private:
     SceneModel * model = nullptr;
     void addNewVideo();
     void removeVideo();
+    bool checkVideo(QString path);
 };
 
 #endif // SCENEFORM_H

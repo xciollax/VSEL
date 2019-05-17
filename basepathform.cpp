@@ -27,11 +27,13 @@ BasePathForm::~BasePathForm()
 
 void BasePathForm::okButtonSlot() {
     QString bPath = QFileDialog::getExistingDirectory(this, tr("Choose Base Directory"),QDir::homePath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    qDebug() << "bPath: " << bPath ;
     QDir test(bPath);
-    if(test.exists()) {
+    if(bPath != "" && test.exists()) {
         setBasePath(bPath);
         QSettings qS;
         qS.setValue("basePath", bPath);
+        ui->currPathLabel->setText(getBasePath());
     }
 
     emit transition("formfs");

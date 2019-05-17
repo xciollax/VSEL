@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent, QString basePath) :
 {
     hide();
     currentForm = NULL;
-    setWindowTitle("Video Slave editor/librarian v." VSEL_V);
+    setWindowTitle("Yeti editor/librarian v." VSEL_V);
     AbstractForm::addToModel("basePath", basePath);
     AbstractForm * tmp = NULL;
 
