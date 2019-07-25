@@ -9,8 +9,8 @@
 int main(int argc, char *argv[])
 {
     //TODO: fix organization data
-    QCoreApplication::setOrganizationName("yodel");
-    QCoreApplication::setOrganizationDomain("yodel.xxx");
+    QCoreApplication::setOrganizationName("Yeti MIDI");
+    QCoreApplication::setOrganizationDomain("yetimidi.com");
 
     QCoreApplication::setApplicationName("Yeti librarian");
 

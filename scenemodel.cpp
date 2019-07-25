@@ -43,6 +43,9 @@ QVariant SceneModel::headerData(int section, Qt::Orientation orientation, int ro
             break;
         case 4:
             val = "Zoom type";
+            break;
+        case 5:
+            val = "Preload";
         }
 
     } else if(orientation == Qt::Vertical) {
@@ -71,7 +74,7 @@ int SceneModel::rowCount(const QModelIndex &parent) const
 
 int SceneModel::columnCount(const QModelIndex &parent) const
 {
-    return 5;
+    return 6;
 }
 
 /**
@@ -119,6 +122,14 @@ QVariant SceneModel::data(const QModelIndex &index, int role) const
             }
 
             break;
+         case 5:
+            if(role == Qt::EditRole) {
+                ret = theScene->videos[index.row()].preload;
+            } else if(role == Qt::DisplayRole) {
+                ret = theScene->videos[index.row()].preload ? "True" : "False";
+            }
+
+            break;
         }
 
         if(role == Qt::ForegroundRole && !theScene->videos[index.row()].ok) {
@@ -153,6 +164,9 @@ bool SceneModel::setData(const QModelIndex &index, const QVariant &value, int ro
             break;
         case 4:
             theScene->videos[index.row()].zoomType = value.toInt();
+            break;
+        case 5:
+            theScene->videos[index.row()].preload = value.toBool();
             break;
         }
 

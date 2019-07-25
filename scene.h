@@ -28,6 +28,13 @@ public:
     bool ok = true;
     bool hasVideo(QString name);
     int indexOf(QString name);
+
+    void addPrerollImage(QString imgPath);
+    void removePrerollImage();
+    bool hasPrerollImage() const;
+    QString prerollImgPath() const;
+    static const QString PREROLL_FILENAME;
+
 private:
     void createId();
     static const QString VID_DATA_FILE;

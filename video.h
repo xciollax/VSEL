@@ -15,6 +15,7 @@ public:
     int blurType;
     int midiNote;
     int zoomType;
+    bool preload;
     static QString blurTypes[];
     static QString zoomTypes[];
     bool ok = true;

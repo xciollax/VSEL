@@ -7,6 +7,8 @@
 #include <QStringBuilder>
 
 const QString Scene::VID_DATA_FILE = "video_data.txt";
+const QString Scene::PREROLL_FILENAME = "preroll.jpg";
+
 Scene::Scene() {}
 
 Scene::Scene(QString path) {
@@ -31,8 +33,8 @@ void Scene::loadVideos() {
         Video * tmpVideo;
         for (int i = 0; i < list.size(); ++i) {
             QFileInfo fileInfo = list.at(i);
-            //exclude video data file
-            if(fileInfo.fileName() != Scene::VID_DATA_FILE) {
+            //exclude video data file and preroll image
+            if(fileInfo.fileName() != Scene::VID_DATA_FILE && fileInfo.fileName() != Scene::PREROLL_FILENAME) {
                 tmpVideo = new Video();
                 tmpVideo->name = fileInfo.fileName();
 
@@ -82,6 +84,40 @@ void Scene::loadVideos() {
 void Scene::addVideo(Video v) {
     this->videos.append(v);
     createId();
+}
+
+
+
+void Scene::addPrerollImage(QString imgPath) {
+    if(imgPath != "") {
+        QFileInfo fi(imgPath);
+        if(!fi.exists()) {
+            throw new VSException("non existent image file, can't add to scene", 667);
+        }
+
+        removePrerollImage();
+
+        if(!QFile::copy(imgPath, prerollImgPath())) {
+            QFileInfo dfi(prerollImgPath());
+            if(!dfi.exists()) {
+                throw VSException("can't copy image file to scene directory", 667);
+            }
+        }
+    }
+}
+
+QString Scene::prerollImgPath() const {
+    return scenePath % QDir::separator() % PREROLL_FILENAME;
+}
+
+void Scene::removePrerollImage() {
+    QDir sceneDir(scenePath);
+    sceneDir.remove(PREROLL_FILENAME);
+}
+
+bool Scene::hasPrerollImage() const {
+    QFileInfo fi(prerollImgPath());
+    return fi.exists();
 }
 
 void Scene::addVideoFile(QString videoPath) {

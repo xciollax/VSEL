@@ -19,6 +19,7 @@ SceneForm::SceneForm(QWidget *parent) :
     connect(ui->doneButton, SIGNAL(clicked(bool)), this, SLOT(doneSlot()));
     connect(ui->addVideoButton, SIGNAL(clicked(bool)), this, SLOT(addVideoSlot()));
     connect(ui->deleteVideoButton, SIGNAL(clicked(bool)), this, SLOT(removeVideoSlot()));
+    connect(ui->prerollButton, SIGNAL(clicked(bool)), this, SLOT(prerollSlot()));
 }
 
 SceneForm::~SceneForm() {
@@ -74,8 +75,10 @@ void SceneForm::update() {
 
 void SceneForm::addNewVideo() {
     QString filePath = QFileDialog::getOpenFileName(this,
-        tr("Choose Video"), QDir::homePath(), tr("Video Files (*.mp4 *.h264)"));
+        tr("Choose Video"), lastOpenDir, tr("Video Files (*.mp4 *.h264)"));
     if(filePath != "") {
+        QFileInfo fi (filePath);
+        lastOpenDir = fi.canonicalPath();
         if(!model->hasVideo(filePath)) {
             if(!checkVideo(filePath)) {
                 showWarningDialog("Video format could be incompatible with the Yeti!");
@@ -159,3 +162,6 @@ void SceneForm::deleteVideoOkSlot() {
     removeVideo();
 }
 
+void SceneForm::prerollSlot() {
+    emit(transition("formpreroll"));
+}

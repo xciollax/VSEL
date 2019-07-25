@@ -92,6 +92,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="prerollButton">
+       <property name="text">
+        <string>Preroll</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="addVideoButton">
        <property name="text">
         <string>Add Video</string>

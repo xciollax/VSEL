@@ -2,6 +2,7 @@
 #include "sceneslistform.h"
 #include "sceneform.h"
 #include "basepathform.h"
+#include "prerollimgform.h"
 #include <iostream>
 #include <QHBoxLayout>
 #include <QFrame>
@@ -38,14 +39,18 @@ MainWindow::MainWindow(QWidget *parent, QString basePath) :
     layout->addWidget(tmp);
     tmp->hide();
 
+    tmp = new PrerollImgForm(fr);
+    connect(tmp, SIGNAL(transition(QString)), this, SLOT(transitionSlot(QString)));
+    forms.insert("formpreroll", tmp);
+    layout->addWidget(tmp);
+    tmp->hide();
+
 
     if(basePath == "") {
        showForm("formbp");
     } else {
        showForm("formfs");
     }
-
-    //show();
 }
 
 MainWindow::~MainWindow() {}

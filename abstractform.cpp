@@ -1,8 +1,10 @@
 #include "abstractform.h"
 #include <QMessageBox>
 #include "vsexception.h"
-
-AbstractForm::AbstractForm(QWidget * parent) : QWidget(parent) {}
+#include <QDir>
+AbstractForm::AbstractForm(QWidget * parent) : QWidget(parent) {
+    lastOpenDir = QDir::homePath();
+}
 
 QMap<QString, QVariant> AbstractForm::sharedModel;
 

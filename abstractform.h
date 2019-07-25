@@ -24,6 +24,7 @@ class AbstractForm : public QWidget {
         void showMsgDialog(QString msg);
         void showWarningDialog(QString msg);
         bool showQuestionDialog(QString msg);
+        QString lastOpenDir;
     signals:
         void transition(QString t);
         void installationPathChanged(QString instPath);

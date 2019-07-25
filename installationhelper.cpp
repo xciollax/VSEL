@@ -6,7 +6,8 @@
 #include "vsexception.h"
 #include <qdebug.h>
 
-const QString InstallationHelper::instDirName = "video_slave";
+//const QString InstallationHelper::instDirName = "video_slave";
+const QString InstallationHelper::instDirName = "YETI_inst";
 const QString InstallationHelper::scenesDirName = "scenes";
 
 InstallationHelper::InstallationHelper() {}
@@ -27,6 +28,7 @@ void InstallationHelper::installScene(const Scene *s, const QString installation
         QDir sceneDir(scenesDir.absolutePath() % QDir::separator() % s->name);
         removeObsoleteVideos(s, sceneDir);
 
+        //install videos
         QString videoFileName;
         for(Video v : s->videos) {
             videoFileName = createFileName(v);
@@ -46,6 +48,17 @@ void InstallationHelper::installScene(const Scene *s, const QString installation
                 throw VSException("can't copy video to installation", 1);
             }
         }
+
+        //install preroll image
+        qDebug("Installing preroll image...start");
+        sceneDir.remove(Scene::PREROLL_FILENAME);
+        if (s->hasPrerollImage()) {
+            qDebug("Installing preroll image...installing %s to %s", s->prerollImgPath().toStdString().c_str(), sceneDir.absolutePath().toStdString().c_str());
+            if(!QFile::copy(s->prerollImgPath(),
+                            sceneDir.absolutePath() % QDir::separator() % Scene::PREROLL_FILENAME)) {
+                throw VSException("failed to install preroll image", 668);
+            }
+        }
     } else {
        throw VSException("illegal installation directory tree", 2);
     }
@@ -62,12 +75,12 @@ void InstallationHelper::uninstallScene(const Scene *s, const QString path) {
 
 //note - blur type - loop at end . ext
 QString InstallationHelper::createFileName(const Video v) {
-    QString midinote, blurType, loopatEnd, zoomType;
+    QString midinote, blurType, loopatEnd, zoomType, preload;
 
     QChar sep = '-';
     QChar dot = '.';
 
-    return midinote.setNum(v.midiNote) % sep % blurType.setNum(v.blurType) % sep % loopatEnd.setNum(v.loopAtEnd) % sep % zoomType.setNum(v.zoomType) % dot % v.name.split(dot).last();
+    return midinote.setNum(v.midiNote) % sep % blurType.setNum(v.blurType) % sep % loopatEnd.setNum(v.loopAtEnd) % sep % zoomType.setNum(v.zoomType) % sep % preload.setNum(v.preload) % dot % v.name.split(dot).last();
 }
 
 /**

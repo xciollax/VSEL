@@ -29,6 +29,7 @@ public slots:
     void removeVideoSlot();
     void updateSelection(const QItemSelection &selected, const QItemSelection &deselected);
     void deleteVideoOkSlot();
+    void prerollSlot();
 
 private:
     void setSceneName(QString sName);
