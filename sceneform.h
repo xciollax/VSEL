@@ -6,7 +6,7 @@
 #include <QItemSelection>
 #include "scenemodel.h"
 #include "confirmdialog.h"
-#include <QMediaResource>
+//#include <QMediaResource>
 #include <QUrl>
 #include <QMimeDatabase>
 
